@@ -1,6 +1,7 @@
 import requests
 from bs4 import BeautifulSoup
 import re
+import json
 
 # 普通网站列表
 normal_urls = [
@@ -12,11 +13,14 @@ normal_urls = [
     "https://www.wetest.vip/"
 ]
 
-# 直接 API （JS 渲染页面的真实接口）
-api_urls = [
-    "https://addressesapi.090227.xyz/ct",   # 电信
-    "https://addressesapi.090227.xyz/cm",   # 移动（部分地区可能无数据）
-    "https://addressesapi.090227.xyz/cu",   # 联通（部分地区可能无数据）
+# JS 站点 API（直接返回文本或 JSON）
+api_urls_text = [
+    "https://addressesapi.090227.xyz/ct",  # 电信
+    "https://addressesapi.090227.xyz/cm",  # 移动
+    "https://addressesapi.090227.xyz/cu"   # 联通
+]
+
+api_urls_json = [
     "https://stock.hostmonit.com/CloudFlareYes"
 ]
 
@@ -43,27 +47,60 @@ def fetch_normal():
             print(f"❌ 普通 {url}: {e}")
     return ip_set, domain_set
 
-def fetch_api():
+def fetch_api_text():
     ip_set, domain_set = set(), set()
-    for url in api_urls:
+    for url in api_urls_text:
         try:
             r = requests.get(url, headers=headers, timeout=15)
             r.raise_for_status()
             text = r.text
             ip_set.update(re.findall(ip_pattern, text))
             domain_set.update(re.findall(domain_pattern, text))
-            print(f"✅ API {url} -> {len(ip_set)} IP, {len(domain_set)} 域名 (累计)")
+            print(f"✅ API文本 {url} -> {len(ip_set)} IP, {len(domain_set)} 域名 (累计)")
         except Exception as e:
-            print(f"❌ API {url}: {e}")
+            print(f"❌ API文本 {url}: {e}")
+    return ip_set, domain_set
+
+def fetch_api_json():
+    ip_set, domain_set = set(), set()
+    for url in api_urls_json:
+        try:
+            r = requests.get(url, headers=headers, timeout=15)
+            r.raise_for_status()
+            data = r.json()  # 直接解析 JSON
+            # 假设 JSON 格式是列表 [{"ip":"1.2.3.4"}, {"ip":"5.6.7.8"}] 或类似结构
+            for item in data:
+                if isinstance(item, dict):
+                    ip = item.get("ip")
+                    if ip:
+                        ip_set.add(ip)
+                    domain = item.get("domain")
+                    if domain:
+                        domain_set.add(domain)
+                elif isinstance(item, str):
+                    # 兼容有些接口直接返回字符串 IP
+                    ip_set.add(item)
+            print(f"✅ API JSON {url} -> {len(ip_set)} IP, {len(domain_set)} 域名 (累计)")
+        except Exception as e:
+            print(f"❌ API JSON {url}: {e}")
     return ip_set, domain_set
 
 if __name__ == "__main__":
     ip_total, domain_total = set(), set()
-    ip1, d1 = fetch_normal()
-    ip2, d2 = fetch_api()
-    ip_total.update(ip1); ip_total.update(ip2)
-    domain_total.update(d1); domain_total.update(d2)
 
+    # 普通网站
+    ip1, d1 = fetch_normal()
+    ip_total.update(ip1); domain_total.update(d1)
+
+    # API 文本接口
+    ip2, d2 = fetch_api_text()
+    ip_total.update(ip2); domain_total.update(d2)
+
+    # API JSON接口
+    ip3, d3 = fetch_api_json()
+    ip_total.update(ip3); domain_total.update(d3)
+
+    # 保存结果
     with open("ip.txt", "w", encoding="utf-8") as f:
         f.write("# 优选IP\n")
         for ip in sorted(ip_total):
@@ -72,4 +109,4 @@ if __name__ == "__main__":
         for d in sorted(domain_total):
             f.write(d + "\n")
 
-    print(f"🎉 保存 {len(ip_total)} 个 IP, {len(domain_total)} 个 域名 到 ip.txt")
+    print(f"🎉 共保存 {len(ip_total)} 个 IP, {len(domain_total)} 个 域名 到 ip.txt")
