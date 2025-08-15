@@ -8,6 +8,8 @@ on:
 jobs:
   fetch:
     runs-on: ubuntu-latest
+    permissions:
+      contents: write   # 🔑 允许 workflow 推送代码
     steps:
       - uses: actions/checkout@v3
 
@@ -22,12 +24,10 @@ jobs:
       - name: Run script
         run: python cf_auto.py
 
-       - name: Commit results
+      - name: Commit results
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
           git add ip.txt
           git commit -m "update ip.txt" || echo "No changes"
           git push
-        env:
-          GITHUB_TOKEN: ${{ secrets.GITHUB_TOKEN }}
