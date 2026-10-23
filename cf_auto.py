@@ -18,6 +18,8 @@ api_urls_text = [
     "https://addressesapi.090227.xyz/ct",  # 电信
     "https://addressesapi.090227.xyz/cm",  # 移动
     "https://addressesapi.090227.xyz/cu"   # 联通
+    "https://bestcf.pages.dev/tiancheng/tw.txt", #台湾 TW
+    "https://bestcf.pages.dev/xinyitang3/ipv4.txt"   # mia
 ]
 
 api_urls_json = [
