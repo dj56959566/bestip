@@ -28,6 +28,6 @@ jobs:
         run: |
           git config --local user.name "github-actions[bot]"
           git config --local user.email "github-actions[bot]@users.noreply.github.com"
-          git add ip.txt nodes.txt sub.txt
-          git commit -m "update ip.txt nodes.txt sub.txt" || echo "No changes"
+          git add ip.txt 
+          git commit -m "update ip.txt" || echo "No changes"
           git push
