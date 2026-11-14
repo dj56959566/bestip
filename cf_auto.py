@@ -16,10 +16,12 @@ normal_urls = [
 # JS 站点 API（直接返回文本或 JSON）
 api_urls_text = [
     "https://addressesapi.090227.xyz/ct",  # 电信
-    "https://addressesapi.090227.xyz/cm",  # 移动
-    "https://addressesapi.090227.xyz/cu",  # 联通
+    "https://cf.090227.xyz/cmcc",  # 移动
+    "https://cf.090227.xyz/cu",  # 联通
     "https://bestcf.pages.dev/tiancheng/tw.txt", #台湾 TW
-    "https://bestcf.pages.dev/xinyitang3/ipv4.txt"   # mia
+    "https://bestcf.pages.dev/xinyitang3/ipv4.txt",   # mia
+    "https://raw.githubusercontent.com/djbadboy-56959566-qq-com/bestip/main/danfeng-lax.txt",  # DanFeng 中转 LAX第三方大妈
+    "https://raw.githubusercontent.com/djbadboy-56959566-qq-com/bestip/main/danfeng-tg.txt"  # DanFeng 中转详细第三方
 ]
 
 api_urls_json = [
