@@ -69,7 +69,14 @@ def fetch_api_json():
         try:
             r = requests.get(url, headers=headers, timeout=15)
             r.raise_for_status()
-            data = r.json()  # 直接解析 JSON
+            try:
+                data = r.json()  # 直接解析 JSON
+            except ValueError:
+                # 不是 JSON（比如 JS 网页），退回按文本正则提取，不让整条源报错
+                ip_set.update(re.findall(ip_pattern, r.text))
+                domain_set.update(re.findall(domain_pattern, r.text))
+                print(f"✅ API JSON {url} -> {len(ip_set)} IP, {len(domain_set)} 域名 (累计)")
+                continue
             # 假设 JSON 格式是列表 [{"ip":"1.2.3.4"}, {"ip":"5.6.7.8"}] 或类似结构
             for item in data:
                 if isinstance(item, dict):
